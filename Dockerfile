@@ -3,39 +3,39 @@ FROM ubuntu:16.04 AS base
 FROM base AS builder
 
 RUN apt-get update && \
-	apt-get install -yqq --no-install-recommends \
-	python-dev \
-	apt-transport-https \
-	wget \
-	libpcap-dev \
-	tesseract-ocr \
-	default-jdk \
-	build-essential \
-    cmake \
-    unzip \
-    yasm \
-    pkg-config \
-    libswscale-dev \
-    libtbb2 \
-    libtbb-dev \
-    libjpeg-dev \
-    libpng-dev \
-    libtiff-dev \
-    libjasper-dev \
-    libavformat-dev \
-    libpq-dev && \
-    wget -qO get-pip.py https://bootstrap.pypa.io/get-pip.py && \
-	python get-pip.py && \
-	pip install -U pip && \
-	rm -rf /var/lib/apt/lists/*
+  apt-get install -yqq --no-install-recommends \
+  python-dev \
+  apt-transport-https \
+  wget \
+  libpcap-dev \
+  tesseract-ocr \
+  default-jdk \
+  build-essential \
+  cmake \
+  unzip \
+  yasm \
+  pkg-config \
+  libswscale-dev
+  libtbb2 \
+  libtbb-dev \
+  libjpeg-dev \
+  libpng-dev \
+  libtiff-dev \
+  libjasper-dev \
+  libavformat-dev \
+  libpq-dev && \
+  wget -qO get-pip.py https://bootstrap.pypa.io/get-pip.py && \
+  python get-pip.py && \
+  pip install -U pip && \
+  rm -rf /var/lib/apt/lists/*
 
 ARG OPENCV_VERSION="2.4.13.5"
 RUN wget -q https://github.com/opencv/opencv/archive/$OPENCV_VERSION.zip \
-&& unzip -q $OPENCV_VERSION.zip \
-&& mkdir /opencv \
-&& mkdir /opencv-$OPENCV_VERSION/cmake_binary \
-&& cd /opencv-$OPENCV_VERSION/cmake_binary \
-&& cmake -DWITH_QT=OFF \
+  && unzip -q $OPENCV_VERSION.zip \
+  && mkdir /opencv \
+  && mkdir /opencv-$OPENCV_VERSION/cmake_binary \
+  && cd /opencv-$OPENCV_VERSION/cmake_binary \
+  && cmake -DWITH_QT=OFF \
          -DWITH_OPENGL=ON \
          -DFORCE_VTK=OFF \
          -DWITH_TBB=ON \
@@ -43,9 +43,9 @@ RUN wget -q https://github.com/opencv/opencv/archive/$OPENCV_VERSION.zip \
          -DWITH_XINE=ON \
          -DBUILD_EXAMPLES=OFF \
          -DENABLE_PRECOMPILED_HEADERS=OFF .. \
-&& make DESTDIR=/opencv install \
-&& rm /$OPENCV_VERSION.zip \
-&& rm -r /opencv-$OPENCV_VERSION
+  && make DESTDIR=/opencv install \
+  && rm /$OPENCV_VERSION.zip \
+  && rm -r /opencv-$OPENCV_VERSION
 
 COPY requirements.txt /
 
@@ -77,16 +77,16 @@ COPY --from=builder /usr/lib/jvm/default-java /usr/lib/jvm/default-java
 ARG NODE_VERSION="10"
 ARG NPM_VERSION="6"
 RUN \
-	echo "deb https://deb.nodesource.com/node_"$NODE_VERSION".x stretch main" > /etc/apt/sources.list.d/nodesource.list && \
-	wget -qO nodesource.gpg https://deb.nodesource.com/gpgkey/nodesource.gpg.key && \
-	apt-key add nodesource.gpg && \
-	echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
-	wget -qO pubkey.gpg https://dl.yarnpkg.com/debian/pubkey.gpg && \
-	apt-key add pubkey.gpg && \
-	apt-get update && \
-	apt-get install -yqq nodejs yarn && \
-	npm i -g npm@^$NPM_VERSION && \
-	rm -rf /var/lib/apt/lists/*
+  echo "deb https://deb.nodesource.com/node_"$NODE_VERSION".x stretch main" > /etc/apt/sources.list.d/nodesource.list && \
+  wget -qO nodesource.gpg https://deb.nodesource.com/gpgkey/nodesource.gpg.key && \
+  apt-key add nodesource.gpg && \
+  echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
+  wget -qO pubkey.gpg https://dl.yarnpkg.com/debian/pubkey.gpg && \
+  apt-key add pubkey.gpg && \
+  apt-get update && \
+  apt-get install -yqq nodejs yarn && \
+  npm i -g npm@^$NPM_VERSION && \
+  rm -rf /var/lib/apt/lists/*
 
 ENV PYTHONIOENCODING utf-8
 ENV ANDROID_HOME /android-sdk
@@ -101,12 +101,12 @@ RUN \
 
 ARG CHROME_VERSION="google-chrome-stable"
 RUN wget --no-check-certificate -qO linux_signing_key https://dl-ssl.google.com/linux/linux_signing_key.pub && \
-		apt-key add linux_signing_key && \
-		echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list && \
-		apt-get update -qqy && \
-		apt-get -qqy install ${CHROME_VERSION:-google-chrome-stable} && \
-		rm /etc/apt/sources.list.d/google-chrome.list && \
-		rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+  apt-key add linux_signing_key && \
+  echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list && \
+  apt-get update -qqy && \
+  apt-get -qqy install ${CHROME_VERSION:-google-chrome-stable} && \
+  rm /etc/apt/sources.list.d/google-chrome.list && \
+  rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 ARG CHROME_DRIVER_VERSION="latest"
 RUN CD_VERSION=$(if [ ${CHROME_DRIVER_VERSION:-latest} = "latest" ]; then echo $(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE); else echo $CHROME_DRIVER_VERSION; fi) \

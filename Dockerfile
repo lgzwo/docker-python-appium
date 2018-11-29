@@ -15,7 +15,7 @@ RUN apt-get update && \
   unzip \
   yasm \
   pkg-config \
-  libswscale-dev
+  libswscale-dev \
   libtbb2 \
   libtbb-dev \
   libjpeg-dev \

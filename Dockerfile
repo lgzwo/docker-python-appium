@@ -24,13 +24,13 @@ RUN apt-get update && \
   libjasper-dev \
   libavformat-dev \
   libpq-dev && \
-  wget -qO get-pip.py https://bootstrap.pypa.io/get-pip.py && \
+  wget --no-check-certificate -qO get-pip.py https://bootstrap.pypa.io/get-pip.py && \
   python get-pip.py && \
   pip install -U pip && \
   rm -rf /var/lib/apt/lists/*
 
 ARG OPENCV_VERSION="2.4.13.5"
-RUN wget -q https://github.com/opencv/opencv/archive/$OPENCV_VERSION.zip \
+RUN wget --no-check-certificate -q https://github.com/opencv/opencv/archive/$OPENCV_VERSION.zip \
   && unzip -q $OPENCV_VERSION.zip \
   && mkdir /opencv \
   && mkdir /opencv-$OPENCV_VERSION/cmake_binary \
@@ -78,10 +78,10 @@ ARG NODE_VERSION="10"
 ARG NPM_VERSION="6"
 RUN \
   echo "deb https://deb.nodesource.com/node_"$NODE_VERSION".x stretch main" > /etc/apt/sources.list.d/nodesource.list && \
-  wget -qO nodesource.gpg https://deb.nodesource.com/gpgkey/nodesource.gpg.key && \
+  wget --no-check-certificate -qO nodesource.gpg https://deb.nodesource.com/gpgkey/nodesource.gpg.key && \
   apt-key add nodesource.gpg && \
   echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
-  wget -qO pubkey.gpg https://dl.yarnpkg.com/debian/pubkey.gpg && \
+  wget --no-check-certificate -qO pubkey.gpg https://dl.yarnpkg.com/debian/pubkey.gpg && \
   apt-key add pubkey.gpg && \
   apt-get update && \
   apt-get install -yqq nodejs yarn && \

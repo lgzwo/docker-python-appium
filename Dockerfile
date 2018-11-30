@@ -51,7 +51,7 @@ COPY requirements.txt /
 
 RUN pip install --target=/dist-packages -r requirements.txt
 
-FROM base
+FROM node:8
 
 COPY --from=builder /opencv/usr /
 
@@ -73,20 +73,6 @@ RUN \
 
 COPY --from=builder /dist-packages /usr/local/lib/python2.7/dist-packages
 COPY --from=builder /usr/lib/jvm/default-java /usr/lib/jvm/default-java
-
-ARG NODE_VERSION="10"
-ARG NPM_VERSION="6"
-RUN \
-  echo "deb https://deb.nodesource.com/node_"$NODE_VERSION".x stretch main" > /etc/apt/sources.list.d/nodesource.list && \
-  wget --no-check-certificate -qO nodesource.gpg https://deb.nodesource.com/gpgkey/nodesource.gpg.key && \
-  apt-key add nodesource.gpg && \
-  echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
-  wget --no-check-certificate -qO pubkey.gpg https://dl.yarnpkg.com/debian/pubkey.gpg && \
-  apt-key add pubkey.gpg && \
-  apt-get update && \
-  apt-get install -yqq nodejs yarn && \
-  npm i -g npm@^$NPM_VERSION && \
-  rm -rf /var/lib/apt/lists/*
 
 ENV PYTHONIOENCODING utf-8
 ENV ANDROID_HOME /android-sdk

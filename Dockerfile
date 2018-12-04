@@ -47,12 +47,9 @@ RUN wget --no-check-certificate -q https://github.com/opencv/opencv/archive/$OPE
   && rm /$OPENCV_VERSION.zip \
   && rm -r /opencv-$OPENCV_VERSION
 
-COPY ./IDDOEMTest /scripts
+COPY requirements.txt /requirements.txt
 
-WORKDIR /scripts
-
-RUN pip install --no-cache-dir --target=/dist-packages -r requirements.txt \
-  && rm -rf .git
+RUN pip install --no-cache-dir --target=/dist-packages -r requirements.txt
 
 FROM node:10
 

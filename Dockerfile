@@ -9,7 +9,7 @@ RUN apt-get update && \
   wget \
   libpcap-dev \
   tesseract-ocr \
-  default-jdk \
+  openjdk-8-jre-headless \
   build-essential \
   cmake \
   unzip \
@@ -47,52 +47,54 @@ RUN wget --no-check-certificate -q https://github.com/opencv/opencv/archive/$OPE
   && rm /$OPENCV_VERSION.zip \
   && rm -r /opencv-$OPENCV_VERSION
 
-COPY requirements.txt /
+COPY ./IDDOEMTest /scripts
 
-RUN pip install --target=/dist-packages -r requirements.txt
+WORKDIR /scripts
 
-FROM node:8
+RUN pip install --no-cache-dir --target=/dist-packages -r requirements.txt \
+  && rm -rf .git
+
+FROM node:10
 
 COPY --from=builder /opencv/usr /
 
 RUN \
-	apt-get update && \
-	apt-get install -yqq --no-install-recommends \
-	lsof \
-	apt-transport-https \
-	wget \
-	unzip \
-	tzdata \
-	python-dev \
-	libpcap-dev \
-	tesseract-ocr \
-	p7zip-full && \
-	mkdir -p /root/Downloads && \
-	ln -s /usr/bin/7za /usr/local/bin/7za && \
-	rm -rf /var/lib/apt/lists/*
+  apt-get update && \
+  apt-get install -yqq --no-install-recommends \
+  lsof \
+  apt-transport-https \
+  wget \
+  unzip \
+  tzdata \
+  python-dev \
+  libpcap-dev \
+  tesseract-ocr \
+  p7zip-full && \
+  mkdir -p /root/Downloads && \
+  ln -s /usr/bin/7za /usr/local/bin/7za && \
+  rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /dist-packages /usr/local/lib/python2.7/dist-packages
-COPY --from=builder /usr/lib/jvm/default-java /usr/lib/jvm/default-java
+COPY --from=builder /usr/lib/jvm/java-8-openjdk-amd64 /usr/lib/jvm/java-8-openjdk-amd64
 
 ENV PYTHONIOENCODING utf-8
 ENV ANDROID_HOME /android-sdk
-ENV JAVA_HOME /usr/lib/jvm/default-java
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 ENV PATH $ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$JAVA_HOME/bin:$PATH
 
 RUN \
   wget --no-check-certificate -q https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip \
   && unzip -q sdk-tools-linux-4333796.zip -d $ANDROID_HOME \
-  && yes | sdkmanager --install 'build-tools;26.0.2' 'platform-tools' \
+  && yes | sdkmanager --no_https --install 'build-tools;26.0.2' 'platform-tools' \
   && rm sdk-tools-linux-4333796.zip
 
 ARG CHROME_VERSION="google-chrome-stable"
-RUN wget --no-check-certificate -qO linux_signing_key https://dl-ssl.google.com/linux/linux_signing_key.pub && \
-  apt-key add linux_signing_key && \
-  echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list && \
-  apt-get update -qqy && \
-  apt-get -qqy install ${CHROME_VERSION:-google-chrome-stable} && \
-  rm /etc/apt/sources.list.d/google-chrome.list && \
-  rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+RUN wget --no-check-certificate -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub|apt-key add - \
+  && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
+  && apt-get update -qqy \
+  && apt-get -qqy install ${CHROME_VERSION:-google-chrome-stable} \
+  && rm /etc/apt/sources.list.d/google-chrome.list \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 ARG CHROME_DRIVER_VERSION="latest"
 RUN CD_VERSION=$(if [ ${CHROME_DRIVER_VERSION:-latest} = "latest" ]; then echo $(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE); else echo $CHROME_DRIVER_VERSION; fi) \
@@ -107,5 +109,3 @@ RUN CD_VERSION=$(if [ ${CHROME_DRIVER_VERSION:-latest} = "latest" ]; then echo $
 
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
   && echo 'Asia/Shanghai' >/etc/timezone
-
-WORKDIR /scripts

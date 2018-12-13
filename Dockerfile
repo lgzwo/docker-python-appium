@@ -66,6 +66,7 @@ RUN \
   python-dev \
   libpcap-dev \
   tesseract-ocr \
+  python-qt4 \
   p7zip-full && \
   mkdir -p /root/Downloads && \
   ln -s /usr/bin/7za /usr/local/bin/7za && \

@@ -65,6 +65,7 @@ RUN \
   tzdata \
   python-dev \
   libpcap-dev \
+  libjpeg-dev \
   tesseract-ocr \
   python-qt4 \
   p7zip-full && \

@@ -9,7 +9,6 @@ RUN apt-get update && \
   wget \
   libpcap-dev \
   tesseract-ocr \
-  openjdk-8-jre-headless \
   build-essential \
   cmake \
   unzip \
@@ -63,6 +62,7 @@ RUN \
   wget \
   unzip \
   tzdata \
+  openjdk-8-jre-headless \
   python-dev \
   libpcap-dev \
   libjpeg-dev \
@@ -77,7 +77,6 @@ RUN \
   rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /dist-packages /usr/local/lib/python2.7/dist-packages
-COPY --from=builder /usr/lib/jvm/java-8-openjdk-amd64 /usr/lib/jvm/java-8-openjdk-amd64
 
 ENV PYTHONIOENCODING utf-8
 ENV ANDROID_HOME /android-sdk

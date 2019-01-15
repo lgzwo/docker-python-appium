@@ -67,10 +67,12 @@ RUN \
   libpcap-dev \
   libjpeg-dev \
   tesseract-ocr \
-  tesseract-ocr-chi \
   python-qt4 \
   p7zip-full && \
   mkdir -p /root/Downloads && \
+  wget --no-check-certificate -q -O \
+  /usr/share/tesseract-ocr/tessdata/chi_sim.traineddata \
+  https://github.com/tesseract-ocr/tessdata/blob/3.04.00/chi_sim.traineddata && \
   ln -s /usr/bin/7za /usr/local/bin/7za && \
   rm -rf /var/lib/apt/lists/*
 

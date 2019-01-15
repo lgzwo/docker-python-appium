@@ -67,6 +67,7 @@ RUN \
   libpcap-dev \
   libjpeg-dev \
   tesseract-ocr \
+  tesseract-ocr-chi \
   python-qt4 \
   p7zip-full && \
   mkdir -p /root/Downloads && \

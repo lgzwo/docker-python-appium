@@ -52,6 +52,10 @@ RUN pip install --no-cache-dir --target=/dist-packages -r requirements.txt
 
 FROM node:10
 
+RUN addgroup --gid 1024 docker_group
+RUN adduser --disabled-password --gecos "" --force-badname --ingroup 1024 docker_user
+USER docker_user
+
 COPY --from=builder /opencv/usr /
 
 RUN \

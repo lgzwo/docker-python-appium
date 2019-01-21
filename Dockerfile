@@ -52,10 +52,6 @@ RUN pip install --no-cache-dir --target=/dist-packages -r requirements.txt
 
 FROM node:10
 
-RUN addgroup --gid 1024 docker_group
-RUN adduser --disabled-password --gecos "" --force-badname --ingroup 1024 docker_user
-USER docker_user
-
 COPY --from=builder /opencv/usr /
 
 RUN \
@@ -114,5 +110,9 @@ RUN CD_VERSION=$(if [ ${CHROME_DRIVER_VERSION:-latest} = "latest" ]; then echo $
 
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
   && echo 'Asia/Shanghai' >/etc/timezone
+
+RUN addgroup --gid 1024 docker_group
+RUN adduser --disabled-password --gecos "" --force-badname --ingroup 1024 docker_user
+USER docker_user
 
 WORKDIR /scripts

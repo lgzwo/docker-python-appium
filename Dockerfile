@@ -54,9 +54,9 @@ FROM node:10
 
 COPY --from=builder /opencv/usr /
 
-RUN \
-  apt-get update && \
-  apt-get install -yqq --no-install-recommends \
+RUN set -eux; \
+  apt-get update \
+  && apt-get install -yqq --no-install-recommends \
   lsof \
   apt-transport-https \
   wget \
@@ -68,13 +68,14 @@ RUN \
   libjpeg-dev \
   tesseract-ocr \
   python-qt4 \
-  p7zip-full && \
-  mkdir -p /root/Downloads && \
-  wget --no-check-certificate -q -O \
+  gosu \
+  p7zip-full \
+  && mkdir -p /root/Downloads \
+  && wget --no-check-certificate -q -O \
   /usr/share/tesseract-ocr/tessdata/chi_sim.traineddata \
-  https://github.com/tesseract-ocr/tessdata/blob/3.04.00/chi_sim.traineddata && \
-  ln -s /usr/bin/7za /usr/local/bin/7za && \
-  rm -rf /var/lib/apt/lists/*
+  https://github.com/tesseract-ocr/tessdata/blob/3.04.00/chi_sim.traineddata \
+  && ln -s /usr/bin/7za /usr/local/bin/7za \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /dist-packages /usr/local/lib/python2.7/dist-packages
 
@@ -111,8 +112,9 @@ RUN CD_VERSION=$(if [ ${CHROME_DRIVER_VERSION:-latest} = "latest" ]; then echo $
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
   && echo 'Asia/Shanghai' >/etc/timezone
 
-RUN addgroup --gid 1024 docker_group
-RUN adduser --disabled-password --gecos "" --force-badname --ingroup 1024 docker_user
-USER docker_user
-
 WORKDIR /scripts
+
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

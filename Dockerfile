@@ -70,7 +70,6 @@ RUN set -eux; \
   python-qt4 \
   gosu \
   p7zip-full \
-  && mkdir -p /root/Downloads \
   && wget --no-check-certificate -q -O \
   /usr/share/tesseract-ocr/tessdata/chi_sim.traineddata \
   https://github.com/tesseract-ocr/tessdata/blob/3.04.00/chi_sim.traineddata \

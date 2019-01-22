@@ -2,31 +2,31 @@ FROM ubuntu:16.04 AS base
 
 FROM base AS builder
 
-RUN apt-get update && \
-  apt-get install -yqq --no-install-recommends \
-  python-dev \
-  apt-transport-https \
-  wget \
-  libpcap-dev \
-  tesseract-ocr \
-  build-essential \
-  cmake \
-  unzip \
-  yasm \
-  pkg-config \
-  libswscale-dev \
-  libtbb2 \
-  libtbb-dev \
-  libjpeg-dev \
-  libpng-dev \
-  libtiff-dev \
-  libjasper-dev \
-  libavformat-dev \
-  libpq-dev && \
-  wget --no-check-certificate -qO get-pip.py https://bootstrap.pypa.io/get-pip.py && \
-  python get-pip.py && \
-  pip install -U pip && \
-  rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+  && apt-get install -yqq --no-install-recommends \
+        python-dev \
+        apt-transport-https \
+        wget \
+        libpcap-dev \
+        tesseract-ocr \
+        build-essential \
+        cmake \
+        unzip \
+        yasm \
+        pkg-config \
+        libswscale-dev \
+        libtbb2 \
+        libtbb-dev \
+        libjpeg-dev \
+        libpng-dev \
+        libtiff-dev \
+        libjasper-dev \
+        libavformat-dev \
+        libpq-dev \
+  && wget --no-check-certificate -qO get-pip.py https://bootstrap.pypa.io/get-pip.py \
+  && python get-pip.py \
+  && pip install -U pip \
+  && rm -rf /var/lib/apt/lists/*
 
 ARG OPENCV_VERSION="2.4.13.5"
 RUN wget --no-check-certificate -q https://github.com/opencv/opencv/archive/$OPENCV_VERSION.zip \
@@ -57,22 +57,22 @@ COPY --from=builder /opencv/usr /
 RUN set -eux; \
   apt-get update \
   && apt-get install -yqq --no-install-recommends \
-  lsof \
-  apt-transport-https \
-  wget \
-  unzip \
-  tzdata \
-  openjdk-8-jre-headless \
-  python-dev \
-  libpcap-dev \
-  libjpeg-dev \
-  tesseract-ocr \
-  python-qt4 \
-  gosu \
-  p7zip-full \
+        lsof \
+        apt-transport-https \
+        wget \
+        unzip \
+        tzdata \
+        openjdk-8-jre-headless \
+        python-dev \
+        libpcap-dev \
+        libjpeg-dev \
+        tesseract-ocr \
+        python-qt4 \
+        gosu \
+        p7zip-full \
   && wget --no-check-certificate -q -O \
-  /usr/share/tesseract-ocr/tessdata/chi_sim.traineddata \
-  https://github.com/tesseract-ocr/tessdata/blob/3.04.00/chi_sim.traineddata \
+        /usr/share/tesseract-ocr/tessdata/chi_sim.traineddata \
+        https://github.com/tesseract-ocr/tessdata/blob/3.04.00/chi_sim.traineddata \
   && ln -s /usr/bin/7za /usr/local/bin/7za \
   && rm -rf /var/lib/apt/lists/*
 

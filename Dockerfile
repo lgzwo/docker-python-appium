@@ -112,7 +112,11 @@ RUN CD_VERSION=$(if [ ${CHROME_DRIVER_VERSION:-latest} = "latest" ]; then echo $
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
   && echo 'Asia/Shanghai' >/etc/timezone
 
-RUN locale-gen zh_CN.UTF-8
+# Set the locale
+RUN sed -i -e 's/# zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/' /etc/locale.gen && \
+    locale-gen
+ENV LANG zh_CN.UTF-8
+ENV LC_ALL zh_CN.UTF-8
 
 WORKDIR /scripts
 

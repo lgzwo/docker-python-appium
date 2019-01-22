@@ -112,6 +112,8 @@ RUN CD_VERSION=$(if [ ${CHROME_DRIVER_VERSION:-latest} = "latest" ]; then echo $
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
   && echo 'Asia/Shanghai' >/etc/timezone
 
+RUN locale-gen zh_CN.UTF-8
+
 WORKDIR /scripts
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh

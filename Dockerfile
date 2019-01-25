@@ -120,7 +120,7 @@ ENV LC_ALL zh_CN.UTF-8
 
 WORKDIR /scripts
 
-RUN mkdir -m 0750 /data/share/.android
+RUN mkdir -p -m 0750 /data/share/.android
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 

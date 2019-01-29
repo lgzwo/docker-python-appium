@@ -2,6 +2,8 @@ FROM ubuntu:16.04 AS base
 
 FROM base AS builder
 
+COPY requirements.txt /requirements.txt
+
 RUN apt-get update \
   && apt-get install -yqq --no-install-recommends \
         python-dev \
@@ -23,10 +25,14 @@ RUN apt-get update \
         libjasper-dev \
         libavformat-dev \
         libpq-dev \
-  && wget --no-check-certificate -qO get-pip.py https://bootstrap.pypa.io/get-pip.py \
+        openjdk-8-jre-headless \
+        && rm -rf /var/lib/apt/lists/*
+
+
+RUN wget --no-check-certificate -qO get-pip.py https://bootstrap.pypa.io/get-pip.py \
   && python get-pip.py \
   && pip install -U pip \
-  && rm -rf /var/lib/apt/lists/*
+  && pip install --no-cache-dir --default-timeout=100 --target=/dist-packages -r requirements.txt
 
 ARG OPENCV_VERSION="2.4.13.5"
 RUN wget --no-check-certificate -q https://github.com/opencv/opencv/archive/$OPENCV_VERSION.zip \
@@ -46,13 +52,26 @@ RUN wget --no-check-certificate -q https://github.com/opencv/opencv/archive/$OPE
   && rm /$OPENCV_VERSION.zip \
   && rm -r /opencv-$OPENCV_VERSION
 
-COPY requirements.txt /requirements.txt
+ENV ANDROID_HOME /android-sdk
+ENV PATH $ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$PATH
 
-RUN pip install --no-cache-dir --target=/dist-packages -r requirements.txt
+RUN \
+  wget --no-check-certificate -q https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip \
+  && unzip -q sdk-tools-linux-4333796.zip -d $ANDROID_HOME \
+  && yes | sdkmanager --no_https --install 'build-tools;26.0.2' 'platform-tools' \
+  && rm sdk-tools-linux-4333796.zip
 
-FROM node:10
+
+FROM base
+
+ENV PYTHONIOENCODING utf-8
+ENV ANDROID_HOME /android-sdk
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
+ENV PATH $ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$JAVA_HOME/bin:$PATH
 
 COPY --from=builder /opencv/usr /
+COPY --from=builder $ANDROID_HOME/platform-tools $ANDROID_HOME/platform-tools
+COPY --from=builder $ANDROID_HOME/tools $ANDROID_HOME/tools
 
 RUN set -eux; \
   apt-get update \
@@ -60,10 +79,9 @@ RUN set -eux; \
         lsof \
         apt-transport-https \
         wget \
-        unzip \
         tzdata \
         openjdk-8-jre-headless \
-        python-dev \
+        python \
         libpcap-dev \
         libjpeg-dev \
         tesseract-ocr \
@@ -71,6 +89,7 @@ RUN set -eux; \
         gosu \
         p7zip-full \
         locales \
+  && apt-get clean \
   && wget --no-check-certificate -q -O \
         /usr/share/tesseract-ocr/tessdata/chi_sim.traineddata \
         https://github.com/tesseract-ocr/tessdata/blob/3.04.00/chi_sim.traineddata \
@@ -78,17 +97,6 @@ RUN set -eux; \
   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /dist-packages /usr/local/lib/python2.7/dist-packages
-
-ENV PYTHONIOENCODING utf-8
-ENV ANDROID_HOME /android-sdk
-ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
-ENV PATH $ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$JAVA_HOME/bin:$PATH
-
-RUN \
-  wget --no-check-certificate -q https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip \
-  && unzip -q sdk-tools-linux-4333796.zip -d $ANDROID_HOME \
-  && yes | sdkmanager --no_https --install 'build-tools;26.0.2' 'platform-tools' \
-  && rm sdk-tools-linux-4333796.zip
 
 ARG CHROME_VERSION="google-chrome-stable"
 RUN wget --no-check-certificate -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub|apt-key add - \
@@ -118,10 +126,19 @@ RUN sed -i -e 's/# zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/' /etc/locale.gen && \
 ENV LANG zh_CN.UTF-8
 ENV LC_ALL zh_CN.UTF-8
 
-WORKDIR /scripts
-
 RUN mkdir -p -m 0750 /data/share/.android
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY IDDOEMTest /scripts
+
+RUN mkdir /tmp \
+  && cd /tmp \
+  && wget --progress=dot:mega \
+     https://nodejs.org/dist/v6.11.2/node-v6.11.2-linux-x64.tar.xz \
+  && tar -xJf node-v*.tar.xz --strip-components 1 -C /usr/local \
+  && rm node-v*.tar.xz
+
+WORKDIR /scripts
+
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

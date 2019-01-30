@@ -86,8 +86,8 @@ RUN set -eux; \
   apt-get update \
   && apt-get install -yqq --no-install-recommends \
         lsof \
-        apt-transport-https \
         wget \
+	xz-utils \
         tzdata \
         openjdk-8-jre-headless \
         python \
@@ -131,14 +131,15 @@ RUN mkdir -p -m 0750 /data/share/.android
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY IDDOEMTest /scripts
 
-RUN mkdir /tmp \
-  && cd /tmp \
-  && wget --progress=dot:mega \
+RUN cd /tmp \
+  && wget --progress=dot:mega --no-check-certificate \
      https://nodejs.org/dist/v6.11.2/node-v6.11.2-linux-x64.tar.xz \
   && tar -xJf node-v*.tar.xz --strip-components 1 -C /usr/local \
   && rm node-v*.tar.xz
 
 WORKDIR /scripts
+
+RUN npm i && npm run cp && npm cache clean && rm -rf ~/.node-gyp
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
 

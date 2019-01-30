@@ -141,6 +141,8 @@ WORKDIR /scripts
 
 RUN npm i && npm run cp && npm cache clean && rm -rf ~/.node-gyp
 
+COPY --from=builder $ANDROID_HOME/build-tools $ANDROID_HOME/build-tools
+
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

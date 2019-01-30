@@ -79,7 +79,7 @@ ENV PATH $ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tool
 
 COPY --from=builder /opencv/usr /
 COPY --from=builder $ANDROID_HOME/platform-tools $ANDROID_HOME/platform-tools
-COPY --from=builder $ANDROID_HOME/tools $ANDROID_HOME/tools
+COPY --from=builder $ANDROID_HOME/build-tools $ANDROID_HOME/build-tools
 COPY --from=builder /opt/selenium/chromedriver /opt/selenium/chromedriver
 
 RUN set -eux; \
@@ -140,8 +140,6 @@ RUN cd /tmp \
 WORKDIR /scripts
 
 RUN npm i && npm run cp && npm cache clean && rm -rf ~/.node-gyp
-
-COPY --from=builder $ANDROID_HOME/build-tools $ANDROID_HOME/build-tools
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
 

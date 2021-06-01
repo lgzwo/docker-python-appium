@@ -6,7 +6,7 @@ Pillow==5.3.0
 PyYAML==3.12
 requests>=2.20.0
 TestLink-API-Python-client==0.8.0
-urllib3==1.22
+urllib3==1.26.5
 pytesseract==0.2.5
 pypcap==1.2.2
 opencv-python==3.4.3.18
